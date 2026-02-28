@@ -20,6 +20,8 @@ app.use(limiter);
 // ─── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
     process.env.FRONTEND_URL,
+	'https://cultivatenaturally.shop',
+    'https://www.cultivatenaturally.shop',
     'http://localhost:5500',
     'http://127.0.0.1:5500',
     'http://localhost:3000'
