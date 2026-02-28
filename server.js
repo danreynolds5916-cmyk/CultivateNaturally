@@ -7,6 +7,11 @@ const rateLimit = require('express-rate-limit');
 // Note: Stripe is initialized lazily inside routes/orders.js — not needed here.
 
 const app = express();
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 app.set('trust proxy', 1);
 
 // ─── Rate Limiting ─────────────────────────────────────────────────────────────
