@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 // Note: Stripe is initialized lazily inside routes/orders.js — not needed here.
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ─── Rate Limiting ─────────────────────────────────────────────────────────────
 const limiter = rateLimit({
