@@ -69,6 +69,7 @@ app.use('/api/newsletter',require('./routes/newsletter'));
 app.use('/api/settings',  require('./routes/settings'));
 app.use('/api/va',        require('./routes/va-users'));
 app.use('/api/contact',   require('./routes/contact'));
+app.use('/api/sitemap',   require('./routes/sitemap'));
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
