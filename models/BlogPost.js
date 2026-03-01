@@ -21,10 +21,12 @@ const blogPostSchema = new mongoose.Schema({
     comments: { type: Number, default: 0 },
     shares: { type: Number, default: 0 },
     commentList: [{
-        name: { type: String, required: true },
-        email: { type: String, default: '' },
-        body: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now }
+        name:       { type: String, required: true },
+        email:      { type: String, default: '' },
+        customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', default: null },
+        body:       { type: String, required: true },
+        editedAt:   { type: Date, default: null },
+        createdAt:  { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 

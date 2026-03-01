@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const requireAuth = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload } = require('../middleware/cloudinaryUpload');
 
 // GET /api/products/categories  — public, returns distinct active categories
 // !! Must be defined BEFORE /:id to prevent 'categories' being treated as an ID
@@ -89,8 +89,8 @@ router.post('/', requireAuth, upload.array('images', 10), async (req, res) => {
             else if (data[f] === '') delete data[f];
         });
 
-        // Attach uploaded file paths
-        const uploadedPaths = (req.files || []).map(f => `/uploads/${f.filename}`);
+        // Attach Cloudinary URLs (req.files[i].path is the full Cloudinary URL)
+        const uploadedPaths = (req.files || []).map(f => f.path);
 
         // Also accept URL-based images passed as JSON array string
         let urlImages = [];
@@ -129,8 +129,8 @@ router.put('/:id', requireAuth, upload.array('images', 10), async (req, res) => 
             else if (data[f] === '') delete data[f];
         });
 
-        // New uploaded images
-        const newUploaded = (req.files || []).map(f => `/uploads/${f.filename}`);
+        // New Cloudinary URLs (req.files[i].path is the full Cloudinary URL)
+        const newUploaded = (req.files || []).map(f => f.path);
 
         // Existing images to keep (sent as JSON array from frontend)
         let existingImages = [];
