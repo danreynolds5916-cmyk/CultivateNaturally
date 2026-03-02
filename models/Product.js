@@ -6,8 +6,8 @@ const productSchema = new mongoose.Schema({
     slug: { type: String, unique: true, trim: true, lowercase: true },
     category: {
         type: String,
-        enum: ['lighting', 'hydroponics', 'nutrients', 'grow-tents', 'environmental', 'other'],
-        default: 'other'
+        trim: true,
+        default: 'General'
     },
     subcategory: { type: String, trim: true },
     price: { type: Number, required: true, min: 0 },
