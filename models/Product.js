@@ -38,6 +38,9 @@ const productSchema = new mongoose.Schema({
     weight: { type: Number },                 // kg
     dimensions: { type: String },             // e.g. "12x8x4"
 
+    // ─── Reviews ──────────────────────────────────────────────────────────
+    defaultRating: { type: Number, min: 1, max: 5, default: null },
+
     // ─── SEO ──────────────────────────────────────────────────────────────
     tags: [{ type: String }],
     metaTitle: { type: String },

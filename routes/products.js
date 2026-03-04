@@ -84,7 +84,7 @@ router.post('/', requireAuth, upload.array('images', 10), async (req, res) => {
         if (data.featured !== undefined) data.featured = data.featured === 'true';
 
         // Convert numeric strings
-        ['price', 'comparePrice', 'costPrice', 'stock', 'lowStockThreshold', 'weight'].forEach(f => {
+        ['price', 'comparePrice', 'costPrice', 'stock', 'lowStockThreshold', 'weight', 'defaultRating'].forEach(f => {
             if (data[f] !== undefined && data[f] !== '') data[f] = parseFloat(data[f]);
             else if (data[f] === '') delete data[f];
         });
@@ -124,7 +124,7 @@ router.put('/:id', requireAuth, upload.array('images', 10), async (req, res) => 
         if (data.featured !== undefined) data.featured = data.featured === 'true';
 
         // Convert numeric strings
-        ['price', 'comparePrice', 'costPrice', 'stock', 'lowStockThreshold', 'weight'].forEach(f => {
+        ['price', 'comparePrice', 'costPrice', 'stock', 'lowStockThreshold', 'weight', 'defaultRating'].forEach(f => {
             if (data[f] !== undefined && data[f] !== '') data[f] = parseFloat(data[f]);
             else if (data[f] === '') delete data[f];
         });
