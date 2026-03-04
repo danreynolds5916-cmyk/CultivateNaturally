@@ -183,4 +183,27 @@ router.patch('/:id/stock', requireAuth, async (req, res) => {
     }
 });
 
+// PATCH /api/products/:id/defaultRating — protected, plain JSON (bypasses multer)
+// Saves or clears the admin-set default star rating.
+router.patch('/:id/defaultRating', requireAuth, async (req, res) => {
+    try {
+        const { defaultRating } = req.body;
+        let update;
+        if (defaultRating === null || defaultRating === '' || defaultRating === undefined) {
+            update = { $unset: { defaultRating: 1 } };
+        } else {
+            const val = parseFloat(defaultRating);
+            if (isNaN(val) || val < 1 || val > 5) {
+                return res.status(400).json({ error: 'defaultRating must be a number between 1 and 5' });
+            }
+            update = { $set: { defaultRating: val } };
+        }
+        const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+        res.json({ id: product._id, defaultRating: product.defaultRating });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
