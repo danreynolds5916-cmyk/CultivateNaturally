@@ -99,7 +99,7 @@ mongoose.connect(process.env.MONGO_URI)
         console.log('✅ Connected to MongoDB');
         await seedAdmin();
         app.listen(PORT, () => {
-            console.log(`🌿 Hamadryad API running on port ${PORT}`);
+            console.log(`🌿 Cultivate Naturally API running on port ${PORT}`);
         });
 
         // ─── Abandoned Cart Job ─────────────────────────────────────────────
@@ -123,3 +123,4 @@ async function seedAdmin() {
         console.log(`👤 Default admin created: ${process.env.ADMIN_EMAIL}`);
     }
 }
+

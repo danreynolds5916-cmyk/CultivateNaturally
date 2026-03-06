@@ -187,7 +187,7 @@ router.post('/send-campaign', requireAuth, async (req, res) => {
         }
 
         const transporter  = getTransporter();
-        const senderName   = fromName  || process.env.SMTP_FROM_NAME || 'Hamadryad';
+        const senderName   = fromName  || process.env.SMTP_FROM_NAME || 'Cultivate Naturally';
         const senderEmail  = fromEmail || process.env.SMTP_USER;
         const frontendUrl  = process.env.FRONTEND_URL || 'http://localhost:5500';
         const backendUrl   = process.env.BACKEND_URL  || 'http://localhost:3000';
@@ -224,7 +224,7 @@ router.post('/send-campaign', requireAuth, async (req, res) => {
                 <br>
                 <hr style="border:none;border-top:1px solid #e0e0e0;margin:24px 0;">
                 <p style="font-size:12px;color:#888;text-align:center;">
-                    You are receiving this because you subscribed to Hamadryad updates.<br>
+                    You are receiving this because you subscribed to Cultivate Naturally updates.<br>
                     <a href="${unsubscribeUrl}" style="color:#888;">Unsubscribe</a>
                 </p>`;
 
@@ -283,3 +283,4 @@ router.patch('/subscribers/:id', requireAuth, async (req, res) => {
 });
 
 module.exports = router;
+

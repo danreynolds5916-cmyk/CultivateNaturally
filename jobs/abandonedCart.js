@@ -105,7 +105,7 @@ async function sendAbandonedCartEmail(customer, reminderNumber) {
     const html = `
         <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#333;">
             <div style="background:#748a53;padding:24px 32px;">
-                <h1 style="color:#fff;font-size:22px;margin:0;font-weight:400;letter-spacing:0.03em;">Hamadryad</h1>
+                <h1 style="color:#fff;font-size:22px;margin:0;font-weight:400;letter-spacing:0.03em;">Cultivate Naturally</h1>
             </div>
             <div style="padding:32px;background:#fff;">
                 ${intros[reminderNumber]}
@@ -155,3 +155,4 @@ function escHtml(str) {
 }
 
 module.exports = { checkAbandonedCarts, sendAbandonedCartEmail };
+

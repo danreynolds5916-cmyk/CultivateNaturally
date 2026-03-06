@@ -138,7 +138,7 @@ router.post('/forgot-password', async (req, res) => {
 
         const html = `
             <p>Hi ${customer.firstName || 'there'},</p>
-            <p>We received a request to reset your Hamadryad account password.</p>
+            <p>We received a request to reset your Cultivate Naturally account password.</p>
             <p style="margin:24px 0;">
                 <a href="${resetUrl}"
                    style="background:#748a53;color:#fff;padding:12px 28px;border-radius:6px;
@@ -151,9 +151,9 @@ router.post('/forgot-password', async (req, res) => {
 
         const transporter = getTransporter();
         await transporter.sendMail({
-            from:    `"${process.env.SMTP_FROM_NAME || 'Hamadryad'}" <${process.env.SMTP_USER}>`,
+            from:    `"${process.env.SMTP_FROM_NAME || 'Cultivate Naturally'}" <${process.env.SMTP_USER}>`,
             to:      customer.email,
-            subject: 'Reset your Hamadryad password',
+            subject: 'Reset your Cultivate Naturally password',
             html
         });
     } catch (err) {
@@ -302,3 +302,4 @@ router.patch('/me/cart', requireCustomer, async (req, res) => {
 });
 
 module.exports = router;
+
