@@ -70,6 +70,7 @@ app.use('/api/settings',  require('./routes/settings'));
 app.use('/api/va',        require('./routes/va-users'));
 app.use('/api/contact',   require('./routes/contact'));
 app.use('/api/sitemap',     require('./routes/sitemap'));
+app.use('/api/prerender',   require('./routes/prerender'));
 app.use('/api/categories',  require('./routes/categories'));
 app.use('/api/products',    require('./routes/reviews'));   // /:id/reviews
 
