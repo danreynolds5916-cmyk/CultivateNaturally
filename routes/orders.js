@@ -117,6 +117,44 @@ async function webhook(req, res) {
     res.json({ received: true });
 }
 
+// ─── GET /api/orders/by-email  — public customer order lookup ──────────────
+// NOTE: Must be declared BEFORE /:id to avoid Express matching 'by-email' as an id
+// Query: ?email=customer@example.com
+router.get('/by-email', async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ error: 'Valid email required' });
+        }
+
+        const orders = await Order.find(
+            { customerEmail: email.toLowerCase().trim() },
+            // Return only safe fields — no internal IDs or payment details
+            'items total currency status createdAt shippingAddress trackingNumber customerName stripeSessionId'
+        )
+            .sort({ createdAt: -1 })
+            .limit(50);
+
+        // Map to a clean public shape
+        const publicOrders = orders.map(o => ({
+            orderId: o._id,
+            stripeSessionId: o.stripeSessionId,
+            date: o.createdAt,
+            status: o.status,
+            total: o.total,
+            currency: o.currency,
+            items: o.items,
+            shippingAddress: o.shippingAddress,
+            trackingNumber: o.trackingNumber || null,
+            customerName: o.customerName
+        }));
+
+        res.json({ orders: publicOrders, count: publicOrders.length });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ─── GET /api/orders  — protected, paginated ───────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
     try {
@@ -173,30 +211,57 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
 router.post('/create-checkout-session', async (req, res) => {
     try {
         const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        const Product = require('../models/Product');
         const { items, successUrl, cancelUrl } = req.body;
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ error: 'No items provided' });
         }
 
-        const lineItems = items.map(item => {
+        // Build line items using server-side prices to prevent price manipulation.
+        // For each item with a productId we look up the real price from the DB.
+        const lineItems = await Promise.all(items.map(async item => {
+            let unitPrice = parseFloat(item.price) || 0;
+            let productName = String(item.name || 'Product');
+            let productImage = item.image && item.image.startsWith('http') ? item.image : null;
+
+            if (item.productId) {
+                try {
+                    const dbProduct = await Product.findById(item.productId).select('price name images status');
+                    if (dbProduct) {
+                        if (dbProduct.status === 'inactive' || dbProduct.status === 'discontinued') {
+                            throw new Error(`Product "${dbProduct.name}" is no longer available.`);
+                        }
+                        unitPrice = dbProduct.price;  // Always use DB price
+                        productName = dbProduct.name;
+                        if (!productImage && dbProduct.images && dbProduct.images[0]) {
+                            const img = dbProduct.images[0];
+                            if (img.startsWith('http')) productImage = img;
+                        }
+                    }
+                } catch (lookupErr) {
+                    if (lookupErr.message.includes('no longer available')) throw lookupErr;
+                    // If DB lookup fails for other reasons, fall back to client price with a warning
+                    console.warn(`Product lookup failed for id ${item.productId}:`, lookupErr.message);
+                }
+            }
+
             const lineItem = {
                 price_data: {
                     currency: 'usd',
                     product_data: {
-                        name: item.name,
+                        name: productName,
                         metadata: { productId: item.productId || '' }
                     },
-                    unit_amount: Math.round(item.price * 100)
+                    unit_amount: Math.round(unitPrice * 100)
                 },
-                quantity: item.quantity
+                quantity: Math.max(1, parseInt(item.quantity, 10) || 1)
             };
-            // Attach image if provided and is a valid URL
-            if (item.image && item.image.startsWith('http')) {
-                lineItem.price_data.product_data.images = [item.image];
+            if (productImage) {
+                lineItem.price_data.product_data.images = [productImage];
             }
             return lineItem;
-        });
+        }));
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -240,43 +305,6 @@ router.post('/create-checkout-session', async (req, res) => {
         res.json({ url: session.url, sessionId: session.id });
     } catch (err) {
         console.error('Stripe session creation error:', err.message);
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ─── GET /api/orders/by-email  — public customer order lookup ──────────────
-// Query: ?email=customer@example.com
-router.get('/by-email', async (req, res) => {
-    try {
-        const { email } = req.query;
-        if (!email || !email.includes('@')) {
-            return res.status(400).json({ error: 'Valid email required' });
-        }
-
-        const orders = await Order.find(
-            { customerEmail: email.toLowerCase().trim() },
-            // Return only safe fields — no internal IDs or payment details
-            'items total currency status createdAt shippingAddress trackingNumber customerName stripeSessionId'
-        )
-            .sort({ createdAt: -1 })
-            .limit(50);
-
-        // Map to a clean public shape
-        const publicOrders = orders.map(o => ({
-            orderId: o._id,
-            stripeSessionId: o.stripeSessionId,
-            date: o.createdAt,
-            status: o.status,
-            total: o.total,
-            currency: o.currency,
-            items: o.items,
-            shippingAddress: o.shippingAddress,
-            trackingNumber: o.trackingNumber || null,
-            customerName: o.customerName
-        }));
-
-        res.json({ orders: publicOrders, count: publicOrders.length });
-    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
